@@ -120,7 +120,10 @@ button.confirm:last-child {
     <tr>
       <th>現在</th>
       <td id="actual-day">-</td>
-      <td id="actual-time">--:--</td>
+      <td>
+        <span id="actual-time">--:--</span><br>
+        (<span id="today-time">--:--</span>)
+      </td>
     </tr>
     <tr>
       <th>休暇</th>
@@ -136,16 +139,11 @@ button.confirm:last-child {
       <th colspan="2">予定過不足時間 <small>※</small></th>
       <td id="expect-time">--:--</td>
     </tr>
-    <tr class="is-flex"><td colspan="3"><small>※ 一日<span id="perday-time">-:--</span>働いた場合の過不足</small></td></tr>
     <tr class="is-flex">
       <th colspan="2">一日あたり必要時間</th>
       <td id="time-per-day">--:--</td>
     </tr>
-    <tr>
-      <th colspan="2">今日の勤務時間 <small>※</small></th>
-      <td id="today-time">--:--</td>
-    </tr>
-    <tr><td colspan="3"><small>※ 休憩時間を含む</small></td></tr>
+    <tr class="is-flex"><td colspan="3"><small>※ 一日<span id="perday-time">-:--</span>働いた場合の過不足</small></td></tr>
   </table>
 <ul>
   <li id="options" class="enabled">オプション</li>
