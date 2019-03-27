@@ -654,32 +654,36 @@
          * ref: https://github.com/irok/KinnosukeTimeRecorder/pull/17#issuecomment-467862567
          */
         calcWorkTimes (workInfo) {
-            const now      = new Date();
-            const nowtime  = now.getHours() * 60 + now.getMinutes();
-            let todayTimes = KTR.workInfo.toTime(0);
-            let subtime    = 0; // すでに勤務開始している場合に必要時間からマイナスする
-            let today      = 0; // すでに勤務開始している場合に必要日数からマイナスする
+            const now     = new Date();
+            const nowtime = now.getHours() * 60 + now.getMinutes();
+            let todaytime = 0;
+            let today     = 0; // すでに勤務開始している場合に必要日数からマイナスする
 
             // 当日勤務時間 … 退勤しているかどうかで取得方法を条件分岐
             if (workInfo.todayActualTimes.time !== 0) {
                 // 退勤済み
-                todayTimes = workInfo.todayActualTimes;
+                todaytime = workInfo.todayActualTimes.time;
             } else if (workInfo.todayStartTimes.time !== workInfo.todayActualTimes.time) {
                 // 勤務中
-                todayTimes = KTR.workInfo.toTime(nowtime - workInfo.todayStartTimes.time);
-                subtime    = todayTimes.time;
-                today      = 1;
+                todaytime = nowtime - workInfo.todayStartTimes.time;
+                today     = 1;
             }
 
-            const needDay     = workInfo.fixedDay - workInfo.actualDay - workInfo.holiday - today; // 残り必要日数
-            const perdaytime  = workInfo.fixedTimes.time / workInfo.fixedDay; // 一日あたり労働時間
-            const perdayTimes = KTR.workInfo.toTime(perdaytime);
-            const needtime    = workInfo.fixedTimes.time - workInfo.actualTimes.time - subtime;
-            const needTimes   = KTR.workInfo.toTime((needtime <= 0) ? 0 : needtime); // 月末までに必要な勤務時間
+            const todayTimes   = KTR.workInfo.toTime(todaytime);
+            const currenttime  = workInfo.actualTimes.time;
+            const currentTimes = KTR.workInfo.toTime(currenttime);
+            const currentDay   = workInfo.fixedDay - workInfo.actualDay - today;
+
+            const needDay      = currentDay - workInfo.holiday; // 残り必要日数
+            const perdaytime   = workInfo.fixedTimes.time / workInfo.fixedDay; // 一日あたり労働時間
+            const perdayTimes  = KTR.workInfo.toTime(perdaytime);
+            const needtime     = workInfo.fixedTimes.time - currentTimes.time;
+
+            const needTimes    = KTR.workInfo.toTime((needtime <= 0) ? 0 : needtime); // 月末までに必要な勤務時間
 
             // 毎日所定時間働いた場合の過不足勤務時間
             const expectTimes       = KTR.workInfo.toTime(needtime - perdayTimes.time * needDay);
-            const expectperdaytime  = (needDay > 0 )? Math.floor(needTimes.time / needDay) : needTimes.time;
+            const expectperdaytime  = (needDay > 0 ) ? Math.floor(needTimes.time / needDay) : needTimes.time;
             const expectPerdayTimes = KTR.workInfo.toTime(expectperdaytime); // 一日あたりの予想必要勤務時間
             expectTimes.sign = (expectTimes.time < 0) ? "超過" : "不足";
 
