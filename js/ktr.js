@@ -677,16 +677,11 @@
             const needtime    = workInfo.fixedTimes.time - workInfo.actualTimes.time - subtime;
             const needTimes   = KTR.workInfo.toTime((needtime <= 0) ? 0 : needtime); // 月末までに必要な勤務時間
 
-            const expectTimes = KTR.workInfo.toTime(needtime - perdayTimes.time * needDay); // 毎日所定時間働いた場合の過不足勤務時間
-
-            let expectPerdayTimes; // 一日あたりの予想必要勤務時間
-            // 残り必要日数が0以下だと計算できないため条件分岐
-            if (needDay > 0) {
-                expectPerdayTimes = KTR.workInfo.toTime(Math.floor(needTimes.time / needDay));
-            } else {
-                expectPerdayTimes = KTR.workInfo.toTime(needTimes.time );
-            }
-            expectTimes.sign = (expectTimes.time < 0) ? "-" : "+";
+            // 毎日所定時間働いた場合の過不足勤務時間
+            const expectTimes       = KTR.workInfo.toTime(needtime - perdayTimes.time * needDay);
+            const expectperdaytime  = (needDay > 0 )? Math.floor(needTimes.time / needDay) : needTimes.time;
+            const expectPerdayTimes = KTR.workInfo.toTime(expectperdaytime); // 一日あたりの予想必要勤務時間
+            expectTimes.sign = (expectTimes.time < 0) ? "超過" : "不足";
 
             return {
                 days:  {
