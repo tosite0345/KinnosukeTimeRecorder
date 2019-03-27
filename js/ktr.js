@@ -657,19 +657,23 @@
             const now      = new Date();
             const nowtime  = now.getHours() * 60 + now.getMinutes();
             let todayTimes = KTR.workInfo.toTime(0);
-            let subtime    = 0;
+            let subtime    = 0; // すでに勤務開始している場合に必要時間からマイナスする
+            let today      = 0; // すでに勤務開始している場合に必要日数からマイナスする
 
             // 当日勤務時間 … 退勤しているかどうかで取得方法を条件分岐
             if (workInfo.todayActualTimes.time !== 0) {
+                // 退勤済み
                 todayTimes = workInfo.todayActualTimes;
             } else if (workInfo.todayStartTimes.time !== workInfo.todayActualTimes.time) {
+                // 勤務中
                 todayTimes = KTR.workInfo.toTime(nowtime - workInfo.todayStartTimes.time);
-                subtime = todayTimes.time;
+                subtime    = todayTimes.time;
+                today      = 1;
             }
 
-            const needDay     = workInfo.fixedDay - workInfo.actualDay - workInfo.holiday; // 残り必要日数
-            const perdayTimes = KTR.workInfo.toTime(workInfo.fixedTimes.time / workInfo.fixedDay); // 一日あたり労働時間
-
+            const needDay     = workInfo.fixedDay - workInfo.actualDay - workInfo.holiday - today; // 残り必要日数
+            const perdaytime  = workInfo.fixedTimes.time / workInfo.fixedDay; // 一日あたり労働時間
+            const perdayTimes = KTR.workInfo.toTime(perdaytime);
             const needtime    = workInfo.fixedTimes.time - workInfo.actualTimes.time - subtime;
             const needTimes   = KTR.workInfo.toTime((needtime <= 0) ? 0 : needtime); // 月末までに必要な勤務時間
 
@@ -687,7 +691,7 @@
             return {
                 days:  {
                     fixed:   workInfo.fixedDay,
-                    actual:  workInfo.actualDay,
+                    actual:  workInfo.actualDay + today, // 勤務開始している場合は+1
                     need:    needDay,
                     holiday: workInfo.holiday
                 },
